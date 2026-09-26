@@ -33,6 +33,16 @@ There were two separate things, and the second one only shows once the first is 
 | `tools/make-release.js` | Builds the release zip, so it's never put together by hand. |
 | [`docs/MAKING-TRACKS-THAT-TAKE-LIGHT.md`](docs/MAKING-TRACKS-THAT-TAKE-LIGHT.md) | **A checklist for making any track take light**: materials, normals out of Blender, naming, and a night test. Every step says where it comes from. |
 
+**If you run the checker on the fixed track, it still ends in FAIL, and that's expected.** The check this fix is about,
+**NORMALS-ROAD, passes**: all 43 road meshes now agree with their faces. The four things it still lists:
+- **MATERIALS:** six materials still have `ksDiffuse = 0`. They are the water (`Material.016`), the start lights
+  (`Light`) and four props (`Material.019` to `.022`). We left them alone because they're away from the road; give them
+  diffuse too if you want headlights to reach them.
+- **NORMALS-OTHER:** the wall (`1WALL_MainTrack`) scores 0.885, just under the 0.9 line. Some of its normals really are
+  off from its own faces, so it's worth a look on your next export. It was outside what this fix touched.
+- **INSIDE-OUT:** `1ROAD_MainTrack.042`, the inside-out box described further down, left for you to decide.
+- **CONFIG-NAMES:** `Globe` in `[LIGHT_SERIES_0]`, a material the kn5 doesn't have (also further down).
+
 **The config changes, compared with your original `ext_config.ini`:**
 - `[SHADER_REPLACEMENT_0]` gives the road (`Material.023`, `.006`, `.018`, `.017` and the start line `Material`), the
   ground (`Material.024`), the tunnel (`Material.027`) and the wall (`Material.025`) ambient 0.45 and diffuse 0.35.
