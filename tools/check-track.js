@@ -129,17 +129,19 @@ function lint(kn5File, configFile) {
     [...bare.map((m) => `ignores light: ${m.name} (ksAmbient ${fmt(m.props.ksAmbient)}, used by ${k.meshes.filter((x) => x.material === m.name).length} meshes)`),
       ...covered.map((m) => `fixed by config: ${m.name} → ksDiffuse ${cfg.diffuse.get(m.name)}`)]);
 
+  // AC_* / KS_* are the game's helper objects (spawn points, timing gates, start lights). This normals rule cannot judge
+  // them: a small box with shared corner vertices averages its normals and scores about 0.5 whether or not anything is
+  // wrong, so a flag on one carries no information. They are SKIPPED here and listed as skipped, never hidden. They are
+  // still checked for materials and for being inside out, where the rule does mean something.
+  const helper = (n) => /^(AC_|KS_)/.test(n);
   const scored = k.meshes.filter((m) => m.absDot !== null);
-  const road = scored.filter((m) => ROAD.test(m.name)), other = scored.filter((m) => !ROAD.test(m.name));
+  const helpers = scored.filter((m) => helper(m.name));
+  const road = scored.filter((m) => ROAD.test(m.name)), other = scored.filter((m) => !ROAD.test(m.name) && !helper(m.name));
   const badRoad = road.filter((m) => m.absDot < DOT_MIN), badOther = other.filter((m) => m.absDot < DOT_MIN);
   add('NORMALS-ROAD', badRoad.length === 0, `road meshes (/^\\d*ROAD/) with stored normals disagreeing with their faces (|dot| < ${DOT_MIN}): ${badRoad.length} of ${road.length}${road.length ? ` · range ${fmt(Math.min(...road.map((m) => m.absDot)))}–${fmt(Math.max(...road.map((m) => m.absDot)))}` : ''}`,
     badRoad.map((m) => `${m.name} (${m.material}) |dot| ${fmt(m.absDot)}`));
-  // AC_* / KS_* are the game's special objects (spawn points, timing gates, start lights). A small box with shared
-  // corner vertices always averages its normals, so it scores about 0.5 here without anything being wrong. Tagged,
-  // not excused: the check still FAILs on them, and the reader decides.
-  const special = (n) => /^(AC_|KS_)/.test(n);
-  add('NORMALS-OTHER', badOther.length === 0, `other meshes with |dot| < ${DOT_MIN}: ${badOther.length} of ${other.length}, of which ${badOther.filter((m) => special(m.name)).length} are AC_/KS_ game objects`,
-    badOther.map((m) => `${m.name} (${m.material}) |dot| ${fmt(m.absDot)}${special(m.name) ? '  [AC_/KS_ game object: smooth-shaded box]' : ''}`));
+  add('NORMALS-OTHER', badOther.length === 0, `other meshes with |dot| < ${DOT_MIN}: ${badOther.length} of ${other.length} · skipped: helpers (AC_/KS_), ${helpers.length} meshes, of which ${helpers.filter((m) => m.absDot < DOT_MIN).length} would score below ${DOT_MIN}`,
+    badOther.map((m) => `${m.name} (${m.material}) |dot| ${fmt(m.absDot)}`));
 
   const inside = scored.filter((m) => m.signedDot < INSIDE_OUT);
   add('INSIDE-OUT', inside.length === 0, `meshes whose normals point against their faces (signed dot < ${INSIDE_OUT}): ${inside.length}`,

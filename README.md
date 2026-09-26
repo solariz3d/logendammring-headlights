@@ -54,6 +54,9 @@ own `Lögendammring\ui\ui_track.json`, unchanged.
 **1 · Content Manager: drag the zip onto it.**
 - In the install dialog, pick **"Update over existing files, keep UI information"**. Do **not** pick "Clean
   installation": that moves your whole track folder to the Recycle Bin and puts only these three files in its place.
+- **Check which option is selected before you click Install.** Content Manager may pre-select "Clean installation" if
+  its "prefer clean installation" setting is on. That's how its source reads (`ContentEntryBase.cs`,
+  `GetDefaultUpdateOption`, lines 155–157), and the setting is yours, so we can't know it for you.
 - Why the zip carries `ui_track.json`: Content Manager only recognises a folder as a track if it has
   `ui\ui_track.json`. With "keep UI information" it skips that file, so yours stays as it is. (That's how Content
   Manager's source code reads: `ContentScanner.cs` and `TrackContentEntry.cs` in gro-ove/actools. It's not in any
@@ -61,12 +64,15 @@ own `Lögendammring\ui\ui_track.json`, unchanged.
 - **Undo:** Content Manager's "update" doesn't keep a backup, so **copy `Lögendammring.kn5` and
   `extension\ext_config.ini` somewhere safe before you drag the zip in**, and copy them back to undo.
 
-**2 · The script, no Content Manager needed.** Put `install.ps1` next to the zip and run
+**2 · The script, no Content Manager needed.** Get `install.ps1` and `uninstall.ps1`: they will be attached to the same
+release as the zip, and they are also at the top of this repo. Put `install.ps1` next to the zip and run
 `powershell -ExecutionPolicy Bypass -File install.ps1` with the game closed. It:
 - finds the game in any of your Steam libraries;
 - refuses while Assetto Corsa is running, or if your `Lögendammring.kn5` isn't the version this fix was made for;
 - backs up `Lögendammring.kn5` → `Lögendammring.kn5.original` and `extension\ext_config.ini` →
   `ext_config.ini.before-headlights`, never overwriting a backup that's already there;
+- if you run it again after changing `ext_config.ini` yourself, saves your version as
+  `ext_config.ini.user-<date-time>` first, and tells you (uninstall leaves that file alone);
 - copies the two files and checks every file's SHA-256.
 - Use `-TrackPath "<...\content\tracks\Lögendammring>"` to point it at a folder yourself.
 - **Undo:** `powershell -ExecutionPolicy Bypass -File uninstall.ps1` moves both backups back and checks them. The

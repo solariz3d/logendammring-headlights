@@ -111,6 +111,20 @@ if (-not (Test-Path -LiteralPath $bakKn5)) {
 $iniBackedUp = $false
 if (Test-Path -LiteralPath $liveIni) {
   if (-not (Test-Path -LiteralPath $bakIni)) { Copy-Item -LiteralPath $liveIni -Destination $bakIni; $iniBackedUp = $true }
+  else {
+    # The config backup already exists (installed before). If the live config is neither that backup nor this fix's
+    # file, someone changed it since: keep their version under its own name before anything is copied over it.
+    $liveIniHash = Hash $liveIni
+    if ($liveIniHash -ne $HASH_NEW_CONFIG -and $liveIniHash -ne (Hash $bakIni)) {
+      $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+      $userIni = Join-Path $extDir "ext_config.ini.user-$stamp"
+      $n = 1
+      while (Test-Path -LiteralPath $userIni) { $userIni = Join-Path $extDir "ext_config.ini.user-$stamp-$n"; $n++ }
+      Copy-Item -LiteralPath $liveIni -Destination $userIni
+      if ((Hash $userIni) -ne $liveIniHash) { Stop-With "could not save your changed ext_config.ini as $(Split-Path -Leaf $userIni). Nothing was overwritten." }
+      Write-Host "Your ext_config.ini had changes of your own: saved as extension\$(Split-Path -Leaf $userIni) before installing." -ForegroundColor Yellow
+    }
+  }
 } elseif (-not (Test-Path -LiteralPath $extDir)) { New-Item -ItemType Directory -Path $extDir | Out-Null }
 
 Copy-Item -LiteralPath $payload.kn5 -Destination $liveKn5 -Force

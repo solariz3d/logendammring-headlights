@@ -5,13 +5,16 @@ you can run on any track before you release it. Each step says where it comes fr
 source for something, we say so rather than pass off a guess as a rule.
 
 Quick start: `node tools/check-track.js "<your track>.kn5" "<your track>\extension\ext_config.ini"` runs checks 1, 2
-and 3 below for you and ends with a PASS/FAIL list. It only reads files.
+and 3 below for you and ends with a PASS/FAIL list. It only reads files. In the normals check it skips the game's own
+`AC_`/`KS_` helper objects (spawn points, timing gates, start lights), because a small box always scores badly on that
+check whether or not anything is wrong. It lists them as skipped, so you can see how many there were.
 
 ## 1 · Materials: give everything light should reach some diffuse
 
 - **Never leave `ksDiffuse` at 0 on a surface you want headlights or the sun to reach.** On Lögendammring, 14 of 16
   materials had `ksDiffuse = 0` and `ksAmbient = 0.7`. Those surfaces showed only their flat ambient brightness, and the
-  car's lights never landed on them. Giving them diffuse fixed it: it was confirmed in a night drive.
+  car's lights never landed on them. The night drive that confirmed the fix tested two changes **together**: diffuse
+  on those materials, and the road's normals recalculated (§2). It can't tell how much each one did alone.
   - *Source:* our own measurement and test on this track. **We did not find an official Kunos page defining ksDiffuse
     or ksAmbient.** The closest is a community list that describes them as "Diffuse light multiplier" and "Ambient
     light multiplier" (assettocorsamods.net, "Assetto Corsa shaders & texture maps list", 2016; secondary).
