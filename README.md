@@ -25,7 +25,7 @@ There were two separate things, and the second one only shows once the first is 
 | file | what it does |
 |---|---|
 | `extension/ext_config.ini` | Your original config plus the fixes listed below it. **This alone fixes problem 1.** |
-| `Lögendammring.kn5`, the patched copy (to be attached to a release, not in the repo because it is 26 MB and it's your file) | Your kn5 with **only the road's vertex normals recalculated**. That fixes problem 2. Same file size, and every other byte is identical to your original. |
+| `Lögendammring.kn5`, the patched copy (in the v1.0 release zip, not in the repo because it is 26 MB and it's your file) | Your kn5 with **only the road's vertex normals recalculated**. That fixes problem 2. Same file size, and every other byte is identical to your original. |
 | `tools/kn5normals.js` | The script that made that copy, so you can see exactly what it did or run it again. |
 | `tools/kn5nodes.js`, `tools/kn5mats.js` | Read-only readers that print every mesh and material in a kn5. They never write anything. |
 | `tools/check-track.js` | A read-only checker for **any** kn5 (and its config): zero-diffuse materials, normals that disagree with their faces, inside-out meshes, config names that don't exist. Ends with PASS/FAIL. See the guide below. |
@@ -57,9 +57,10 @@ There were two separate things, and the second one only shows once the first is 
 
 ## How to install — three ways, each with its undo
 
-The files come in a release zip, `Lögendammring-headlights.zip` (**it will be attached to a release; there isn't one
-yet**). It holds `Lögendammring\Lögendammring.kn5` (the patched copy), `Lögendammring\extension\ext_config.ini`, and your
-own `Lögendammring\ui\ui_track.json`, unchanged.
+Everything is in release **v1.0** on this repo's Releases page. The download is named `Logendammring-headlights.zip`
+(GitHub drops the "ö" from file names), but inside it the folder is still `Lögendammring`. It holds
+`Lögendammring\Lögendammring.kn5` (the patched copy), `Lögendammring\extension\ext_config.ini`, and your own
+`Lögendammring\ui\ui_track.json`, unchanged.
 
 **1 · Content Manager: drag the zip onto it.**
 - In the install dialog, pick **"Update over existing files, keep UI information"**. Do **not** pick "Clean
@@ -74,8 +75,8 @@ own `Lögendammring\ui\ui_track.json`, unchanged.
 - **Undo:** Content Manager's "update" doesn't keep a backup, so **copy `Lögendammring.kn5` and
   `extension\ext_config.ini` somewhere safe before you drag the zip in**, and copy them back to undo.
 
-**2 · The script, no Content Manager needed.** Get `install.ps1` and `uninstall.ps1`: they will be attached to the same
-release as the zip, and they are also at the top of this repo. Put `install.ps1` next to the zip and run
+**2 · The script, no Content Manager needed.** Get `install.ps1` and `uninstall.ps1`: they are attached to release v1.0
+next to the zip, and they are also at the top of this repo. Put `install.ps1` next to the zip and run
 `powershell -ExecutionPolicy Bypass -File install.ps1` with the game closed. It:
 - finds the game in any of your Steam libraries;
 - refuses while Assetto Corsa is running, or if your `Lögendammring.kn5` isn't the version this fix was made for;
